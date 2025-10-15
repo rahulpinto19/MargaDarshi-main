@@ -1,0 +1,99 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useStore } from '../hooks/useStore';
+import EvaluationPanel from '../components/EvaluationPanel';
+import { Download, Home } from 'lucide-react';
+
+const ResultsPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { evaluations, currentFileId } = useStore();
+
+  const currentEvaluation = evaluations.find((e) => e.fileId === currentFileId);
+
+  const handleDownloadReport = () => {
+    if (!currentEvaluation) return;
+
+    const report = `
+EVALUATION REPORT
+=================
+
+Date: ${new Date(currentEvaluation.timestamp).toLocaleString()}
+Total Score: ${currentEvaluation.totalScore}
+
+DETAILED SCORES
+---------------
+${currentEvaluation.scores
+  .map(
+    (s) => `
+Criterion ${s.criterionId}: ${s.score}
+Feedback: ${s.feedback}
+`
+  )
+  .join('\n')}
+
+OVERALL FEEDBACK
+----------------
+${currentEvaluation.overallFeedback}
+    `.trim();
+
+    const blob = new Blob([report], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `evaluation-report-${currentEvaluation.id}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto relative">
+      {/* Decorative Trophy Icon */}
+      <div className="absolute -top-5 right-10 text-white/10 pointer-events-none animate-float">
+        <svg className="w-28 h-28" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z"/>
+          <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z"/>
+        </svg>
+      </div>
+      
+      <div className="mb-8 text-center">
+        <div className="inline-flex items-center justify-center mb-3">
+          <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl mr-4 shadow-xl">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-lg leading-tight pb-2">
+            Evaluation Results
+          </h1>
+        </div>
+        <p className="text-lg font-semibold drop-shadow bg-gradient-to-r from-emerald-700 via-teal-700 to-cyan-700 bg-clip-text text-transparent">
+          Review the AI-generated evaluation and feedback for the answer sheet.
+        </p>
+      </div>
+
+      <EvaluationPanel evaluation={currentEvaluation || null} />
+
+      {currentEvaluation && (
+        <div className="mt-8 flex justify-between items-center">
+          <button
+            onClick={() => navigate('/upload')}
+            className="flex items-center px-6 py-3 border-2 border-teal-300 text-teal-700 rounded-xl hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 transition-all duration-300 font-medium"
+          >
+            <Home className="mr-2 h-5 w-5" />
+            Start New Evaluation
+          </button>
+          <button
+            onClick={handleDownloadReport}
+            className="flex items-center px-8 py-4 bg-gradient-to-r from-green-600 via-teal-600 to-blue-600 text-white rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 font-semibold"
+          >
+            <Download className="mr-2 h-5 w-5" />
+            Download Report
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ResultsPage;
+
