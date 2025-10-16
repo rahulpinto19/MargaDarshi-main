@@ -1,81 +1,108 @@
 import express from 'express';
-import { upload } from '../server.js';
-import { performOCR } from '../services/ocrService.js';
+import multer from 'multer';
+import fs from 'fs';
+import fsPromises from 'fs/promises';
+// const fs = require('fs');
+import vision from '@google-cloud/vision';
+import rephraseText from '../services/textCorrection.js'
+// const fsPromises = require('fs').promises;
 
-export const ocrRouter = express.Router();
+// Create the specific router instance
+export const ocrRouter = express.Router(); 
 
-// POST /api/ocr - Process image and extract text
-ocrRouter.post('/', upload.single('image'), async (req, res) => {
 
-  console.log(req)
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No image file provided' });
+const UPLOAD_DIR = 'temp_uploads';
+
+// --- 1. SETUP AND DIRECTORY CHECK ---
+
+// Create the upload directory if it doesn't exist (Synchronous check on startup)
+if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+    console.log(`Created upload directory: ${UPLOAD_DIR}`);
+}
+
+// --- 2. MULTER CONFIGURATION ---
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, UPLOAD_DIR);
+    },
+    filename: (req, file, cb) => {
+        // Creates a unique filename (e.g., 1760547395552-image.png)
+        cb(null, `${Date.now()}-${file.originalname}`);
     }
-
-    console.log('Processing OCR for file:', req.file.originalname);
-    
-    const result = await performOCR(req.file.buffer);
-    
-    res.json({
-      text: result.text,
-      confidence: result.confidence,
-      success: true
-    });
-  } catch (error) {
-    console.error('OCR Error:', error);
-    res.status(500).json({ 
-      error: 'OCR processing failed',
-      message: error.message 
-    });
-  }
 });
 
-export default ocrRouter;
+const upload = multer({ storage: storage });
+const visionClient = new vision.ImageAnnotatorClient();
 
+// --- 3. VISION API CORE FUNCTION ---
 
-const vision = require('@google-cloud/vision');
-const fs = require('fs').promises; // Use the promises version for async/await
-
-async function quickstart() {
-    // Creates a client
-    const client = new vision.ImageAnnotatorClient();
-
-    // --- Configuration ---
-    // NOTE: This assumes 'textImage1.jpeg' exists in the directory.
-    const fileName = 'textImage1.jpeg';
-    const outputFilePath = 'vision_output.txt'; // The file to write the results to.
-    // ---------------------
-
-    console.log(`Analyzing image: ${fileName}`);
+async function detectTextFromPath(filePath) {
+    console.log(`Analyzing image from path: ${filePath}`);
 
     try {
-        // Performs text detection on the local file
-        const [result] = await client.textDetection(fileName);
-        const detections = result.textAnnotations;
+        const [result] = await visionClient.textDetection(filePath);
+        const fullText = result.textAnnotations && result.textAnnotations.length > 0
+            ? result.textAnnotations[0].description
+            : 'No text detected.';
 
-        // 1. Format the data for writing to the file
-        let outputContent;
-
-        if (detections && detections.length > 0) {
-            console.log('Text detection successful. Formatting results...');
-            
-            // Format the full JSON structure of the annotations for clarity (2-space indentation)
-            outputContent = JSON.stringify(detections, null, 2);
-            
-        } else {
-            outputContent = `No text detected in image: ${fileName}`;
-        }
-        
-        // 2. Write the formatted output content to the specified file
-        await fs.writeFile(outputFilePath, outputContent, 'utf8');
-
-        console.log(`Successfully wrote text detection results to: ${outputFilePath}`);
+        console.log(`Detection complete. Text length: ${fullText.length}`);
+        return fullText;
 
     } catch (error) {
-        console.error('ERROR during Vision API call or file writing:', error.message);
-        // Displaying only the error message instead of the full error stack
+        console.error('ERROR during Vision API call:', error.message);
+        throw new Error(`Vision API failed: ${error.message}`);
     }
 }
 
-quickstart();
+
+// --- 4. ROUTE DEFINITION ON THE ocrRouter ---
+
+// The path here is JUST '/detect-text' because the prefix '/api/ocr' is added in server.js
+ocrRouter.post('/detect-text', upload.single('image'), async (req, res) => {
+    
+    const filePath = req.file ? req.file.path : null;
+
+    if (!filePath) {
+        return res.status(400).json({ message: 'No file uploaded under the key "image".' });
+    }
+
+    try {
+        // Process the file
+        const detectedText = await detectTextFromPath(filePath);
+
+        // Cleanup: Delete the temporary file
+        await fsPromises.unlink(filePath);
+        console.log(`Cleaned up temporary file: ${filePath}`);
+
+        // Send success response
+        
+        const rephrasedText = await rephraseText(detectedText)
+        
+
+        res.status(200).json({
+            message: 'Image successfully processed and cleanup complete.',
+            filename: req.file.originalname,
+            text: rephrasedText
+        });
+
+    } catch (error) {
+        // Cleanup on failure
+        if (filePath) {
+            try {
+                await fsPromises.unlink(filePath);
+            } catch (cleanupError) {
+                console.error('CRITICAL: Failed to clean up file:', cleanupError.message);
+            }
+        }
+
+        // Send error response
+        console.error('Request failed:', error.message);
+        res.status(500).send(`File processing failed: ${error.message}`);
+    }
+});
+
+
+export default ocrRouter;
+

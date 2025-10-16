@@ -4,6 +4,8 @@ import { evaluateWithGemini } from '../services/geminiService.js';
 export const evaluationRouter = express.Router();
 
 // POST /api/evaluation - Evaluate answer using Gemini AI
+import textEvaluation from '../services/textEvaluation.js'
+
 evaluationRouter.post('/', async (req, res) => {
   try {
     const { text, rubric } = req.body;
@@ -14,9 +16,9 @@ evaluationRouter.post('/', async (req, res) => {
       });
     }
 
-    console.log('Evaluating answer with Gemini AI...');
+    console.log(rubric,"rubric is")
     
-    const result = await evaluateWithGemini(text, rubric);
+    const result = await textEvaluation(text);
     
     res.json({
       ...result,
