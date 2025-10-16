@@ -7,6 +7,9 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -15,18 +18,77 @@ const LoginPage: React.FC = () => {
     setError('');
     setLoading(true);
 
-    // Simulate login validation
     setTimeout(() => {
-      if (email && password) {
-        // Store login state
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userEmail', email);
-        navigate('/upload');
-      } else {
+      if (!email || !password) {
         setError('Please enter both email and password');
+        setLoading(false);
+        return;
+      }
+      const usersRaw = localStorage.getItem('md_users');
+      const users: Record<string, { name: string; email: string; password: string }>= usersRaw ? JSON.parse(usersRaw) : {};
+      const existing = users[email.toLowerCase()];
+      if (existing) {
+        if (existing.password === password) {
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('userEmail', email.toLowerCase());
+          localStorage.setItem('userName', existing.name);
+          navigate('/upload');
+        } else {
+          setError('Incorrect password');
+        }
+      } else {
+        // fallback legacy: allow login without pre-signup
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userEmail', email.toLowerCase());
+        navigate('/upload');
       }
       setLoading(false);
-    }, 1000);
+    }, 700);
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    setTimeout(() => {
+      if (!name.trim()) {
+        setError('Please enter your name');
+        setLoading(false);
+        return;
+      }
+      if (!email || !password) {
+        setError('Please enter email and password');
+        setLoading(false);
+        return;
+      }
+      if (password.length < 6) {
+        setError('Password must be at least 6 characters');
+        setLoading(false);
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError('Passwords do not match');
+        setLoading(false);
+        return;
+      }
+
+      const usersRaw = localStorage.getItem('md_users');
+      const users: Record<string, { name: string; email: string; password: string }>= usersRaw ? JSON.parse(usersRaw) : {};
+      const key = email.toLowerCase();
+      if (users[key]) {
+        setError('An account with this email already exists');
+        setLoading(false);
+        return;
+      }
+      users[key] = { name: name.trim(), email: key, password };
+      localStorage.setItem('md_users', JSON.stringify(users));
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userEmail', key);
+      localStorage.setItem('userName', name.trim());
+      navigate('/upload');
+      setLoading(false);
+    }, 700);
   };
 
   return (
@@ -63,30 +125,72 @@ const LoginPage: React.FC = () => {
       
       <div className="max-w-md w-full relative z-10">
         {/* Logo and Title */}
-        <div className="text-center mb-6">
-          <div className="inline-block p-3 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 rounded-2xl mb-3 shadow-xl relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 to-pink-500 rounded-2xl blur-lg opacity-50 animate-pulse"></div>
-            <FileText className="h-12 w-12 text-white relative z-10" />
+        <div className="text-center mb-4">
+          <div className="inline-block p-2.5 bg-blue-600 rounded-2xl mb-2 shadow-xl relative">
+            <div className="absolute inset-0 bg-blue-500 rounded-2xl blur-lg opacity-50 animate-pulse"></div>
+            <FileText className="h-10 w-10 text-white relative z-10" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2 drop-shadow-lg tracking-tight leading-tight pb-1">
+          <h1 className="text-3xl font-bold text-blue-700 mb-1 drop-shadow-lg tracking-tight leading-tight">
             MargaDarshi
           </h1>
-          <p className="font-medium text-sm drop-shadow bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">AI-Powered Evaluation Platform</p>
+          <p className="font-medium text-sm drop-shadow text-blue-700">AI-Powered Evaluation Platform</p>
         </div>
 
-        {/* Login Form */}
-        <div className="glass-effect rounded-2xl p-8 animate-glow">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-1">
-              Welcome Back
-            </h2>
-            <p className="text-gray-600 text-sm">Sign in to continue</p>
+        {/* Auth Card */}
+        <div className="glass-effect rounded-2xl p-6 animate-glow">
+          {/* Tabs */}
+          <div className="flex items-center justify-center mb-4">
+            <button
+              className={`px-4 py-2 rounded-l-xl border border-blue-300 font-semibold ${mode==='login' ? 'bg-blue-600 text-white' : 'bg-white/70 text-blue-700 hover:bg-white'}`}
+              onClick={() => { setMode('login'); setError(''); }}
+              type="button"
+            >
+              Login
+            </button>
+            <button
+              className={`px-4 py-2 rounded-r-xl border-t border-b border-r border-blue-300 font-semibold ${mode==='signup' ? 'bg-blue-600 text-white' : 'bg-white/70 text-blue-700 hover:bg-white'}`}
+              onClick={() => { setMode('signup'); setError(''); }}
+              type="button"
+            >
+              Signup
+            </button>
+          </div>
+
+          {/* Heading */}
+          <div className="text-center mb-4">
+            {mode === 'login' ? (
+              <>
+                <h2 className="text-xl font-bold text-blue-700 mb-1">Welcome Back</h2>
+                <p className="text-gray-600 text-xs">Sign in to continue</p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-bold text-blue-700 mb-1">Create your account</h2>
+                <p className="text-gray-600 text-xs">It takes less than a minute</p>
+              </>
+            )}
           </div>
           
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={mode==='login' ? handleLogin : handleSignup} className="space-y-3">
+            {mode === 'signup' && (
+              <div>
+                <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Full Name
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="block w-full px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white/50 backdrop-blur-sm hover:bg-white/80 text-gray-900 font-medium"
+                  placeholder="Jane Doe"
+                  required
+                />
+              </div>
+            )}
             {/* Email Input */}
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-1.5">
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-1">
                 Email Address
               </label>
               <div className="relative group">
@@ -98,7 +202,7 @@ const LoginPage: React.FC = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-11 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-white/50 backdrop-blur-sm hover:bg-white/80 text-gray-900 font-medium"
+                  className="block w-full pl-11 pr-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-white/50 backdrop-blur-sm hover:bg-white/80 text-gray-900 font-medium"
                   placeholder="you@example.com"
                   required
                 />
@@ -107,7 +211,7 @@ const LoginPage: React.FC = () => {
 
             {/* Password Input */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-1.5">
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-1">
                 Password
               </label>
               <div className="relative group">
@@ -119,16 +223,33 @@ const LoginPage: React.FC = () => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-11 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-white/50 backdrop-blur-sm hover:bg-white/80 text-gray-900 font-medium"
+                  className="block w-full pl-11 pr-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-white/50 backdrop-blur-sm hover:bg-white/80 text-gray-900 font-medium"
                   placeholder="••••••••"
                   required
                 />
               </div>
             </div>
 
+            {mode === 'signup' && (
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-1">
+                  Confirm Password
+                </label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="block w-full px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white/50 backdrop-blur-sm hover:bg-white/80 text-gray-900 font-medium"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+            )}
+
             {/* Error Message */}
             {error && (
-              <div className="bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-300 rounded-xl p-4 text-red-700 text-sm font-medium flex items-center">
+              <div className="bg-red-50 border-2 border-red-300 rounded-xl p-3 text-red-700 text-sm font-medium flex items-center">
                 <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
                 </svg>
@@ -136,23 +257,23 @@ const LoginPage: React.FC = () => {
               </div>
             )}
 
-            {/* Login Button */}
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center px-6 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-xl shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 font-bold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 relative overflow-hidden group mt-6"
+              className="w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-xl shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 font-bold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 relative overflow-hidden group mt-4 hover:bg-blue-700"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute inset-0 bg-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <span className="relative z-10 flex items-center">
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-                    Logging in...
+                    {mode==='login' ? 'Logging in...' : 'Creating account...'}
                   </>
                 ) : (
                   <>
                     <LogIn className="mr-2 h-5 w-5" />
-                    Login
+                    {mode==='login' ? 'Login' : 'Create account'}
                   </>
                 )}
               </span>
@@ -161,7 +282,7 @@ const LoginPage: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs mt-4 drop-shadow font-semibold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+        <p className="text-center text-xs mt-3 drop-shadow font-semibold text-blue-700">
           Powered by Gemini AI • Tesseract OCR
         </p>
       </div>

@@ -60,8 +60,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       <div
         className={`relative border-2 border-dashed rounded-2xl p-6 text-center transition-all duration-300 ${
           dragActive
-            ? 'border-purple-500 bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 shadow-2xl scale-105 animate-glow'
-            : 'border-purple-300/50 hover:border-purple-400 hover:bg-gradient-to-br hover:from-indigo-50/50 hover:via-purple-50/50 hover:to-pink-50/50 hover:shadow-xl'
+            ? 'border-blue-500 bg-blue-50 shadow-2xl scale-105'
+            : 'border-blue-300 hover:border-blue-400 hover:bg-blue-50 hover:shadow-xl'
         }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -77,11 +77,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           onChange={handleChange}
         />
         <label htmlFor="file-upload" className="cursor-pointer">
-          <div className="inline-block p-3 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 rounded-xl mb-3 shadow-lg hover:shadow-2xl transition-shadow duration-300">
+          <div className="inline-block p-3 bg-blue-600 rounded-xl mb-3 shadow-lg hover:shadow-2xl transition-shadow duration-300">
             <Upload className="h-8 w-8 text-white" />
           </div>
           <p className="text-sm text-gray-700">
-            <span className="font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Click to upload</span> or drag and drop
+            <span className="font-bold text-blue-800">Click to upload</span> or drag and drop
           </p>
           <p className="mt-1 text-xs text-gray-500">
             PNG, JPG, PDF up to 10MB
@@ -97,11 +97,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           {selectedFiles.map((file, index) => (
             <div
               key={index}
-              className="flex items-center justify-between bg-white/80 backdrop-blur-sm p-3 rounded-xl border-2 border-gray-200 hover:border-purple-300 transition-all duration-300 hover:shadow-md"
+              className="flex items-center justify-between bg-white p-3 rounded-xl border-2 border-gray-200 hover:border-blue-300 transition-all duration-300 hover:shadow-md"
             >
               <div className="flex items-center space-x-3 flex-1 min-w-0">
-                <div className="flex-shrink-0 p-2 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg">
-                  <Upload className="h-4 w-4 text-purple-600" />
+                <div className="flex-shrink-0 p-2 bg-blue-100 rounded-lg">
+                  <Upload className="h-4 w-4 text-blue-600" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">
