@@ -1,51 +1,106 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useStore } from '../hooks/useStore';
-import ImagePreview from '../components/ImagePreview';
-import OCRTextViewer from '../components/OCRTextViewer';
+import React, { useState, useEffect } from 'react';
+import { ArrowRight, Loader2, Image, FileText } from 'lucide-react';
 import { appStore } from '../store/AppStore';
-import { performOCR } from '../services/ocrService';
-import { ArrowRight, Loader2 } from 'lucide-react';
-import { textDetection } from './textDetection' 
 
+const ImagePreview: React.FC<{ src: string, alt: string }> = ({ src, alt }) => (
+  <div className="bg-gray-800 rounded-2xl shadow-2xl overflow-hidden min-h-[400px]">
+    <img src={src} alt={alt} className="w-full h-full object-contain" />
+    <div className="p-4 bg-gray-700 text-sm text-white flex justify-between items-center">
+      <span><Image className="inline h-4 w-4 mr-2" /> Image: {alt}</span>
+    </div>
+  </div>
+);
+
+const OCRTextViewer: React.FC<{ text: string, confidence?: number }> = ({ text, confidence }) => (
+  <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 min-h-[400px] flex flex-col">
+    <h3 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+      <FileText className="h-6 w-6 text-purple-600 mr-3" /> Extracted Text
+    </h3>
+    <div className="flex-grow bg-gray-50 p-4 rounded-lg overflow-y-auto max-h-[300px] border border-gray-200">
+      <pre className="whitespace-pre-wrap text-sm text-gray-700 font-mono leading-relaxed">
+        {text || 'No text available.'}
+      </pre>
+    </div>
+    {confidence !== undefined && (
+      <p className="mt-4 text-sm text-gray-600">
+        OCR Confidence Score: <span className="font-bold text-purple-600">{(confidence * 100).toFixed(2)}%</span>
+      </p>
+    )}
+  </div>
+);
 
 const OCRPreviewPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { uploadedFiles, ocrResults, currentFileId } = useStore();
-  const [processing, setProcessing] = React.useState(false);
+  const [state, setState] = useState(appStore.getState());
+  const [processing, setProcessing] = useState(false);
 
+  useEffect(() => {
+    const unsubscribe = appStore.subscribe(() => setState(appStore.getState()));
+    return unsubscribe;
+  }, []);
+
+  const { uploadedFiles, ocrResults, currentFileId } = state;
   const currentFile = uploadedFiles.find((f) => f.id === currentFileId);
   const currentOCR = ocrResults.find((r) => r.fileId === currentFileId);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (currentFile && !currentOCR && !processing) {
       handleOCR();
     }
-  }, [currentFile, currentOCR]);
+    // eslint-disable-next-line
+  }, [currentFile, currentOCR, processing]);
 
   const handleOCR = async () => {
-    if (!currentFile) return;
-
+    if (!currentFile || processing) return;
     setProcessing(true);
-    
+
     try {
-      // const result = await performOCR(currentFile.file);
-      const getConfidence = await performOCR(currentFile.file);
-      const result = await textDetection(currentFile.file);
-      appStore.setOCRResult({
-        fileId: currentFile.id,
-        text: result.text,
-        confidence: getConfidence.confidence,
+      // Send file to backend for OCR
+      const API_ENDPOINT = 'http://localhost:5000/api/ocr/detect-text';
+      const formData = new FormData();
+      formData.append('image', currentFile.file);
+
+      const response = await fetch(API_ENDPOINT, {
+        method: 'POST',
+        body: formData,
       });
-    } catch (error) {
-      console.error('OCR failed:', error);
+
+      const result = await response.json();
+      alert(result)
+
+      if (!response.ok) {
+        throw new Error(result.message || 'OCR API error');
+      }
+
+      // If your backend returns confidence, use it; else, set to 1 (100%)
+      appStore.setState((state) => ({
+        ocrResults: [
+          ...state.ocrResults,
+          {
+            fileId: currentFile.id,
+            text: result.text || '',
+            confidence: typeof result.confidence === 'number' ? result.confidence : 1,
+          },
+        ],
+      }));
+    } catch (error: any) {
+      appStore.setState((state) => ({
+        ocrResults: [
+          ...state.ocrResults,
+          {
+            fileId: currentFile.id,
+            text: `OCR failed: ${error.message}`,
+            confidence: 0,
+          },
+        ],
+      }));
     } finally {
       setProcessing(false);
     }
   };
 
   const handleProceed = () => {
-    navigate('/evaluation');
+    // Replace with your navigation logic
+    window.location.href = '/evaluation';
   };
 
   if (!currentFile) {
@@ -53,7 +108,7 @@ const OCRPreviewPage: React.FC = () => {
       <div className="max-w-4xl mx-auto text-center py-12">
         <p className="text-gray-600">No files uploaded. Please upload files first.</p>
         <button
-          onClick={() => navigate('/upload')}
+          onClick={() => (window.location.href = '/upload')}
           className="mt-4 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold"
         >
           Go to Upload
@@ -63,15 +118,15 @@ const OCRPreviewPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto relative">
+    <div className="max-w-7xl mx-auto relative p-6 bg-gray-50 rounded-xl shadow-inner">
       {/* Decorative Icon */}
-      <div className="absolute -top-5 right-10 text-white/10 pointer-events-none animate-float">
+      <div className="absolute -top-5 right-10 text-white/10 pointer-events-none animate-pulse">
         <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-          <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
+          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+          <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
         </svg>
       </div>
-      
+
       <div className="mb-8 text-center">
         <div className="inline-flex items-center justify-center mb-3">
           <div className="p-3 bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl mr-4 shadow-xl">
@@ -100,11 +155,11 @@ const OCRPreviewPage: React.FC = () => {
             </div>
             <p className="text-gray-800 font-semibold text-lg mb-2">Processing OCR...</p>
             <p className="text-gray-600 text-sm text-center max-w-md">
-              Extracting text from your image. This may take 10-30 seconds depending on image size and complexity.
+              Extracting text from your image. This may take a moment.
             </p>
             <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md">
               <p className="text-xs text-blue-800 text-center">
-                💡 <strong>Tip:</strong> Open browser console (F12) to see detailed progress
+                💡 <strong>Tip:</strong> Ensure your Node.js server is running on port 5000.
               </p>
             </div>
           </div>
@@ -134,5 +189,20 @@ const OCRPreviewPage: React.FC = () => {
   );
 };
 
-export default OCRPreviewPage;
+const App: React.FC = () => (
+  <div className="min-h-screen bg-gray-50 p-4">
+    <style>{`
+      @keyframes float {
+        0% { transform: translateY(0px) }
+        50% { transform: translateY(-10px) }
+        100% { transform: translateY(0px) }
+      }
+      .animate-float {
+        animation: float 6s ease-in-out infinite;
+      }
+    `}</style>
+    <OCRPreviewPage />
+  </div>
+);
 
+export default App;

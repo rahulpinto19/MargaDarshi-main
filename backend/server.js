@@ -2,13 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
 import dotenv from 'dotenv';
-import { ocrRouter } from './routes/ocr.js';
-import { evaluationRouter } from './routes/evaluation.js';
 
+
+import { evaluationRouter } from './routes/evaluation.js';
+import {ocrRouter} from './routes/ocr.js'
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());

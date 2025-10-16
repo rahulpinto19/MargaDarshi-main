@@ -18,6 +18,7 @@ const EvaluationPage: React.FC = () => {
   };
 
   const handleEvaluate = async () => {
+
     if (!currentOCR || !rubric || !currentFileId) return;
 
     setEvaluating(true);

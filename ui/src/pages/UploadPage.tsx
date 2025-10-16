@@ -20,7 +20,6 @@ const UploadPage: React.FC = () => {
     files.forEach((file) => {
       const id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
       const preview = URL.createObjectURL(file);
-      // console.log(preview)
       appStore.addUploadedFile({ id, file, preview });
 
     });
