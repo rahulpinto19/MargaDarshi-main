@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useStore } from '../hooks/useStore';
 import EvaluationPanel from '../components/EvaluationPanel';
 import { Download, Home } from 'lucide-react';
+import { appStore } from '../store/AppStore';
 
 const ResultsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { evaluations, currentFileId } = useStore();
+  const { evaluations, currentFileId } = appStore.getState();
 
   const currentEvaluation = evaluations.find((e) => e.fileId === currentFileId);
 
@@ -18,15 +18,15 @@ EVALUATION REPORT
 =================
 
 Date: ${new Date(currentEvaluation.timestamp).toLocaleString()}
-Total Score: ${currentEvaluation.totalScore}
+Total Score: ${currentEvaluation.overallScore}
 
 DETAILED SCORES
 ---------------
-${currentEvaluation.scores
+${currentEvaluation.categories
   .map(
     (s) => `
-Criterion ${s.criterionId}: ${s.score}
-Feedback: ${s.feedback}
+Criterion ${s.id}: ${s.score}
+Feedback: ${s.description}
 `
   )
   .join('\n')}
@@ -40,7 +40,7 @@ ${currentEvaluation.overallFeedback}
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `evaluation-report-${currentEvaluation.id}.txt`;
+    a.download = `evaluation-report-${currentEvaluation.fileId}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };

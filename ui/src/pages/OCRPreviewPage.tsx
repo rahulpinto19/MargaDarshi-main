@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Loader2, Image, FileText } from 'lucide-react';
 import { appStore } from '../store/AppStore';
+import { useNavigate } from 'react-router-dom';
 
 const ImagePreview: React.FC<{ src: string, alt: string }> = ({ src, alt }) => (
   <div className="bg-gray-800 rounded-2xl shadow-2xl overflow-hidden min-h-[400px]">
@@ -32,6 +33,8 @@ const OCRTextViewer: React.FC<{ text: string, confidence?: number }> = ({ text, 
 const OCRPreviewPage: React.FC = () => {
   const [state, setState] = useState(appStore.getState());
   const [processing, setProcessing] = useState(false);
+  const navigate = useNavigate();
+  
 
   useEffect(() => {
     const unsubscribe = appStore.subscribe(() => setState(appStore.getState()));
@@ -82,6 +85,8 @@ const OCRPreviewPage: React.FC = () => {
           },
         ],
       }));
+    
+
     } catch (error: any) {
       appStore.setState((state) => ({
         ocrResults: [
@@ -100,7 +105,10 @@ const OCRPreviewPage: React.FC = () => {
 
   const handleProceed = () => {
     // Replace with your navigation logic
-    window.location.href = '/evaluation';
+ 
+
+    // window.location.href = '/evaluation';
+    navigate('/evaluation')
   };
 
   if (!currentFile) {

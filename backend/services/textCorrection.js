@@ -11,7 +11,6 @@ export default async function rephraseText(inputText) {
     const userQuery = `Do the spelling correction according to the context without changing the sentence in the text : "${inputText.trim()}"`;
     // const userQuery = `give the marks for the given text out of 10 also give where the sentecnce can improve : "${inputText.trim()}"`;
 
-
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
     const payload = {

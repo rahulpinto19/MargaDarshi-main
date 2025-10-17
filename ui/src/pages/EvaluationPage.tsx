@@ -1,40 +1,57 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useStore } from '../hooks/useStore';
+// import { useStore } from '../hooks/useStore';
 import RubricForm from '../components/RubricForm';
 import { appStore, Rubric } from '../store/AppStore';
-import { evaluateWithGemini } from '../services/geminiService';
+
 import { Sparkles } from 'lucide-react';
 
 const EvaluationPage: React.FC = () => {
+
+
+  // console.log('Current ocrResults:', appStore.getState().ocrResults);
   const navigate = useNavigate();
-  const { rubric, ocrResults, currentFileId } = useStore();
+  const { rubric, ocrResults, currentFileId } = appStore.getState();
+
   const [evaluating, setEvaluating] = React.useState(false);
 
   const currentOCR = ocrResults.find((r) => r.fileId === currentFileId);
 
   const handleSaveRubric = (newRubric: Rubric) => {
     appStore.setRubric(newRubric);
+    console.log({"old ":rubric,"newRubric":newRubric})
   };
-
   const handleEvaluate = async () => {
+
 
     if (!currentOCR || !rubric || !currentFileId) return;
 
+   
+    const API_ENDPOINT = 'http://localhost:5000/api/evaluation'
     setEvaluating(true);
+    
+
+    
+
+    const response = await fetch(API_ENDPOINT, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({rubric: rubric , text:currentOCR.text})
+    });
+    const resultData = await response.json();
+
+    console.log("this is the response",resultData.res);
     try {
-      const evaluation = await evaluateWithGemini(currentOCR.text, rubric);
-      appStore.addEvaluation({
-        ...evaluation,
-        id: Date.now().toString(),
-        fileId: currentFileId,
-        rubricId: 'default',
-        timestamp: new Date(),
-      });
+      console.log("parsed string into json",JSON.parse(resultData.res))
+      
+
       navigate('/results');
     } catch (error) {
-      console.error('Evaluation failed:', error);
-    } finally {
+      console.log("error in parsign ghe data:",)
+    }
+    finally {
       setEvaluating(false);
     }
   };
@@ -52,7 +69,7 @@ const EvaluationPage: React.FC = () => {
       </div>
     );
   }
-
+  
   return (
     <div className="max-w-5xl mx-auto relative">
       {/* Decorative Sparkle Icons */}
