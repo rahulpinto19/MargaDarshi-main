@@ -16,7 +16,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ src, alt }) => {
 
   return (
     <div className="glass-effect rounded-2xl overflow-hidden">
-      <div className="bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 p-4 border-b border-purple-200/50 flex items-center justify-between">
+      <div className="bg-blue-100 p-4 border-b border-blue-200 flex items-center justify-between">
         <h3 className="text-sm font-medium text-gray-700">Image Preview</h3>
         <div className="flex space-x-2">
           <button

@@ -24,11 +24,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <div className="p-2 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 rounded-xl shadow-lg animate-pulse">
+              <div className="p-2 bg-blue-600 rounded-xl shadow-lg">
                 <FileText className="h-6 w-6 text-white" />
               </div>
               <div className="ml-3">
-                <div className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight pb-0.5">
+                <div className="text-xl font-bold text-blue-700 leading-tight pb-0.5">
                   MargaDarshi
                 </div>
                 <div className="text-xs text-gray-500 -mt-0.5">Paper Correction System</div>
@@ -38,11 +38,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               {userEmail && (
                 <>
                   <span className="text-sm font-medium">
-                    Welcome, <span className="font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{userEmail}</span>
+                    Welcome, <span className="font-bold text-blue-800">{userEmail}</span>
                   </span>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center px-4 py-2 text-sm font-medium text-red-600 hover:text-red-800 border-2 border-red-300 rounded-xl hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 transition-all duration-300"
+                    className="flex items-center px-4 py-2 text-sm font-medium text-red-600 hover:text-red-800 border-2 border-red-300 rounded-xl hover:bg-red-50 transition-all duration-300"
                   >
                     <LogOut className="h-4 w-4 mr-2" />
                     Logout

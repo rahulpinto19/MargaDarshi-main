@@ -57,16 +57,16 @@ ${currentEvaluation.overallFeedback}
       
       <div className="mb-8 text-center">
         <div className="inline-flex items-center justify-center mb-3">
-          <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl mr-4 shadow-xl">
+          <div className="p-3 bg-blue-600 rounded-2xl mr-4 shadow-xl">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-lg leading-tight pb-2">
+          <h1 className="text-5xl font-bold text-blue-700 drop-shadow-lg leading-tight pb-2">
             Evaluation Results
           </h1>
         </div>
-        <p className="text-lg font-semibold drop-shadow bg-gradient-to-r from-emerald-700 via-teal-700 to-cyan-700 bg-clip-text text-transparent">
+        <p className="text-lg font-semibold drop-shadow text-blue-700">
           Review the AI-generated evaluation and feedback for the answer sheet.
         </p>
       </div>
@@ -77,14 +77,14 @@ ${currentEvaluation.overallFeedback}
         <div className="mt-8 flex justify-between items-center">
           <button
             onClick={() => navigate('/upload')}
-            className="flex items-center px-6 py-3 border-2 border-teal-300 text-teal-700 rounded-xl hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 transition-all duration-300 font-medium"
+            className="flex items-center px-6 py-3 border-2 border-blue-300 text-blue-700 rounded-xl hover:bg-blue-50 transition-all duration-300 font-medium"
           >
             <Home className="mr-2 h-5 w-5" />
             Start New Evaluation
           </button>
           <button
             onClick={handleDownloadReport}
-            className="flex items-center px-8 py-4 bg-gradient-to-r from-green-600 via-teal-600 to-blue-600 text-white rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 font-semibold"
+            className="flex items-center px-8 py-4 bg-blue-600 text-white rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 font-semibold hover:bg-blue-700"
           >
             <Download className="mr-2 h-5 w-5" />
             Download Report

@@ -45,7 +45,7 @@ const EvaluationPage: React.FC = () => {
         <p className="text-gray-600">No OCR text available. Please complete OCR first.</p>
         <button
           onClick={() => navigate('/ocr-preview')}
-          className="mt-4 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold"
+          className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold hover:bg-blue-700"
         >
           Go to OCR Preview
         </button>
@@ -62,16 +62,16 @@ const EvaluationPage: React.FC = () => {
       
       <div className="mb-8 text-center">
         <div className="inline-flex items-center justify-center mb-3">
-          <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl mr-4 shadow-xl">
+          <div className="p-3 bg-blue-600 rounded-2xl mr-4 shadow-xl">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
             </svg>
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent drop-shadow-lg leading-tight pb-2">
+          <h1 className="text-5xl font-bold text-blue-700 drop-shadow-lg leading-tight pb-2">
             Evaluation Setup
           </h1>
         </div>
-        <p className="text-lg font-semibold drop-shadow bg-gradient-to-r from-purple-700 via-fuchsia-700 to-pink-700 bg-clip-text text-transparent">
+        <p className="text-lg font-semibold drop-shadow text-blue-700">
           Configure the evaluation rubric and let Gemini AI evaluate the answer sheet.
         </p>
       </div>
@@ -79,18 +79,18 @@ const EvaluationPage: React.FC = () => {
       <RubricForm rubric={rubric} onSave={handleSaveRubric} />
 
       {rubric && (
-        <div className="mt-8 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 rounded-2xl shadow-xl border-2 border-purple-200/50 p-8">
-          <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+        <div className="mt-8 bg-blue-50 rounded-2xl shadow-xl border-2 border-blue-200/50 p-8">
+          <h3 className="text-2xl font-bold text-blue-700 mb-4">
             ✨ Ready to Evaluate
           </h3>
           <p className="text-gray-700 mb-6 text-lg">
-            The rubric is configured with <span className="font-bold text-purple-600">{rubric.criteria.length} criteria</span> and a total of{' '}
-            <span className="font-bold text-pink-600">{rubric.totalMarks} marks</span>. Click below to start AI evaluation.
+            The rubric is configured with <span className="font-bold text-blue-700">{rubric.criteria.length} criteria</span> and a total of{' '}
+            <span className="font-bold text-blue-700">{rubric.totalMarks} marks</span>. Click below to start AI evaluation.
           </p>
           <button
             onClick={handleEvaluate}
             disabled={evaluating}
-            className="flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 text-white rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="flex items-center px-8 py-4 bg-blue-600 text-white rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 hover:bg-blue-700"
           >
             {evaluating ? (
               <>
