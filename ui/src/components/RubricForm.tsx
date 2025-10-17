@@ -44,18 +44,18 @@ const RubricForm: React.FC<RubricFormProps> = ({ rubric, onSave }) => {
   return (
     <div className="glass-effect rounded-2xl p-8">
       <div className="flex items-center justify-between mb-8">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+        <h2 className="text-2xl font-bold text-blue-700">
           Evaluation Rubric
         </h2>
-        <div className="px-4 py-2 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl border-2 border-purple-300">
+        <div className="px-4 py-2 bg-blue-100 rounded-xl border-2 border-blue-300">
           <span className="text-sm text-gray-700">Total Marks: </span>
-          <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{totalMarks}</span>
+          <span className="text-xl font-bold text-blue-800">{totalMarks}</span>
         </div>
       </div>
 
       <div className="space-y-4">
         {criteria.map((criterion) => (
-          <div key={criterion.id} className="border-2 border-purple-200/50 bg-gradient-to-br from-white to-purple-50/30 rounded-xl p-6 hover:shadow-lg transition-all duration-300">
+          <div key={criterion.id} className="border-2 border-blue-200 bg-white rounded-xl p-6 hover:shadow-lg transition-all duration-300">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -65,7 +65,7 @@ const RubricForm: React.FC<RubricFormProps> = ({ rubric, onSave }) => {
                   type="text"
                   value={criterion.name}
                   onChange={(e) => updateCriterion(criterion.id, 'name', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   placeholder="e.g., Content Quality"
                 />
               </div>
@@ -79,7 +79,7 @@ const RubricForm: React.FC<RubricFormProps> = ({ rubric, onSave }) => {
                   onChange={(e) =>
                     updateCriterion(criterion.id, 'maxMarks', parseInt(e.target.value) || 0)
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   placeholder="10"
                   min="0"
                 />
@@ -91,7 +91,7 @@ const RubricForm: React.FC<RubricFormProps> = ({ rubric, onSave }) => {
                 <textarea
                   value={criterion.description}
                   onChange={(e) => updateCriterion(criterion.id, 'description', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Describe what this criterion evaluates..."
                   rows={2}
                 />
@@ -113,14 +113,14 @@ const RubricForm: React.FC<RubricFormProps> = ({ rubric, onSave }) => {
       <div className="mt-8 flex items-center justify-between">
         <button
           onClick={addCriterion}
-          className="flex items-center px-6 py-3 text-purple-600 hover:text-purple-800 font-semibold border-2 border-purple-300 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all duration-300"
+          className="flex items-center px-6 py-3 text-blue-600 hover:text-blue-800 font-semibold border-2 border-blue-300 rounded-xl hover:bg-blue-50 transition-all duration-300"
         >
           <Plus className="h-5 w-5 mr-2" />
           Add Criterion
         </button>
         <button
           onClick={handleSave}
-          className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold"
+          className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold hover:bg-blue-700"
         >
           Save Rubric
         </button>

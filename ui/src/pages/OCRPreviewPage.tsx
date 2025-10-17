@@ -117,7 +117,7 @@ const OCRPreviewPage: React.FC = () => {
         <p className="text-gray-600">No files uploaded. Please upload files first.</p>
         <button
           onClick={() => (window.location.href = '/upload')}
-          className="mt-4 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold"
+          className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold hover:bg-blue-700"
         >
           Go to Upload
         </button>
@@ -126,7 +126,7 @@ const OCRPreviewPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto relative p-6 bg-gray-50 rounded-xl shadow-inner">
+    <div className="max-w-7xl mx-auto relative p-6">
       {/* Decorative Icon */}
       <div className="absolute -top-5 right-10 text-white/10 pointer-events-none animate-pulse">
         <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 20 20">
@@ -137,17 +137,17 @@ const OCRPreviewPage: React.FC = () => {
 
       <div className="mb-8 text-center">
         <div className="inline-flex items-center justify-center mb-3">
-          <div className="p-3 bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl mr-4 shadow-xl">
+          <div className="p-3 bg-blue-600 rounded-2xl mr-4 shadow-xl">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-green-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-lg leading-tight pb-2">
+          <h1 className="text-5xl font-bold text-blue-700 drop-shadow-lg leading-tight pb-2">
             OCR Preview
           </h1>
         </div>
-        <p className="text-lg font-semibold drop-shadow bg-gradient-to-r from-green-700 via-teal-700 to-cyan-700 bg-clip-text text-transparent">
+        <p className="text-lg font-semibold drop-shadow text-blue-700">
           Review the extracted text from the uploaded answer sheet.
         </p>
       </div>
@@ -158,8 +158,8 @@ const OCRPreviewPage: React.FC = () => {
         {processing ? (
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8 flex flex-col items-center justify-center min-h-[400px]">
             <div className="relative mb-6">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur-xl opacity-50 animate-pulse"></div>
-              <Loader2 className="relative h-16 w-16 text-purple-600 animate-spin" />
+              <div className="absolute inset-0 bg-blue-600 rounded-full blur-xl opacity-50 animate-pulse"></div>
+              <Loader2 className="relative h-16 w-16 text-blue-600 animate-spin" />
             </div>
             <p className="text-gray-800 font-semibold text-lg mb-2">Processing OCR...</p>
             <p className="text-gray-600 text-sm text-center max-w-md">
@@ -180,13 +180,13 @@ const OCRPreviewPage: React.FC = () => {
         <div className="mt-8 flex justify-between items-center">
           <button
             onClick={handleOCR}
-            className="px-6 py-3 border-2 border-purple-300 text-purple-700 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 transition-all duration-300 font-medium"
+            className="px-6 py-3 border-2 border-blue-300 text-blue-700 rounded-xl hover:bg-blue-50 transition-all duration-300 font-medium"
           >
             Re-process OCR
           </button>
           <button
             onClick={handleProceed}
-            className="flex items-center px-8 py-4 bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 text-white rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 font-semibold"
+            className="flex items-center px-8 py-4 bg-blue-600 text-white rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 font-semibold hover:bg-blue-700"
           >
             Proceed to Evaluation
             <ArrowRight className="ml-2 h-5 w-5" />
@@ -197,20 +197,4 @@ const OCRPreviewPage: React.FC = () => {
   );
 };
 
-const App: React.FC = () => (
-  <div className="min-h-screen bg-gray-50 p-4">
-    <style>{`
-      @keyframes float {
-        0% { transform: translateY(0px) }
-        50% { transform: translateY(-10px) }
-        100% { transform: translateY(0px) }
-      }
-      .animate-float {
-        animation: float 6s ease-in-out infinite;
-      }
-    `}</style>
-    <OCRPreviewPage />
-  </div>
-);
-
-export default App;
+export default OCRPreviewPage;

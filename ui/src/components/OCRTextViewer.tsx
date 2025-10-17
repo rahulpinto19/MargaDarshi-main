@@ -27,7 +27,7 @@ const OCRTextViewer: React.FC<OCRTextViewerProps> = ({ text, confidence }) => {
 
   return (
     <div className="glass-effect rounded-2xl overflow-hidden">
-      <div className="bg-gradient-to-r from-green-100 via-emerald-100 to-teal-100 p-4 border-b border-teal-200/50 flex items-center justify-between">
+      <div className="bg-blue-100 p-4 border-b border-blue-200 flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <h3 className="text-sm font-medium text-gray-700">Extracted Text</h3>
           {confidence !== undefined && (
