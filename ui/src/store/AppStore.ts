@@ -25,15 +25,40 @@ export interface RubricCriterion {
   description: string;
 }
 
-export interface EvaluationResult {
+// --- NEW/UPDATED INTERFACES FOR RICH EVALUATION RESULTS ---
+
+export interface CategoryScore {
   id: string;
-  fileId: string;
-  rubricId: string;
-  scores: { criterionId: string; score: number; feedback: string }[];
-  totalScore: number;
-  overallFeedback: string;
-  timestamp: Date;
+  name: string;
+  maxMarks: number;
+  score: number;
+  description: string;
 }
+
+export interface StudentReport {
+  TONE: string;
+  MESSAGE: string;
+}
+
+export interface TeacherReport {
+  CONCEPTUAL_GAP: string;
+  DIAGNOSIS: string;
+  INTERVENTION: string;
+}
+
+export interface EvaluationResult {
+ 
+  // Updated to use the rich structure from the JSON
+  // fileId:string,
+  fileId:string;
+  categories: CategoryScore[];
+  overallScore: number;
+  studentReport: StudentReport;
+  teacherReport: TeacherReport;
+  timestamp: Date;
+  overallFeedback:string
+}
+// --- END NEW/UPDATED INTERFACES ---
 
 interface AppState {
   uploadedFiles: UploadedFile[];
@@ -100,4 +125,3 @@ class Store {
 }
 
 export const appStore = new Store();
-

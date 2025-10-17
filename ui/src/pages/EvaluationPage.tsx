@@ -1,40 +1,57 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useStore } from '../hooks/useStore';
+// import { useStore } from '../hooks/useStore';
 import RubricForm from '../components/RubricForm';
 import { appStore, Rubric } from '../store/AppStore';
-import { evaluateWithGemini } from '../services/geminiService';
+
 import { Sparkles } from 'lucide-react';
 
 const EvaluationPage: React.FC = () => {
+
+
+  // console.log('Current ocrResults:', appStore.getState().ocrResults);
   const navigate = useNavigate();
-  const { rubric, ocrResults, currentFileId } = useStore();
+  const { rubric, ocrResults, currentFileId } = appStore.getState();
+
   const [evaluating, setEvaluating] = React.useState(false);
 
   const currentOCR = ocrResults.find((r) => r.fileId === currentFileId);
 
   const handleSaveRubric = (newRubric: Rubric) => {
     appStore.setRubric(newRubric);
+    console.log({"old ":rubric,"newRubric":newRubric})
   };
-
   const handleEvaluate = async () => {
+
 
     if (!currentOCR || !rubric || !currentFileId) return;
 
+   
+    const API_ENDPOINT = 'http://localhost:5000/api/evaluation'
     setEvaluating(true);
+    
+
+    
+
+    const response = await fetch(API_ENDPOINT, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({rubric: rubric , text:currentOCR.text})
+    });
+    const resultData = await response.json();
+
+    console.log("this is the response",resultData.res);
     try {
-      const evaluation = await evaluateWithGemini(currentOCR.text, rubric);
-      appStore.addEvaluation({
-        ...evaluation,
-        id: Date.now().toString(),
-        fileId: currentFileId,
-        rubricId: 'default',
-        timestamp: new Date(),
-      });
+      console.log("parsed string into json",JSON.parse(resultData.res))
+      
+
       navigate('/results');
     } catch (error) {
-      console.error('Evaluation failed:', error);
-    } finally {
+      console.log("error in parsign ghe data:",)
+    }
+    finally {
       setEvaluating(false);
     }
   };
@@ -52,7 +69,7 @@ const EvaluationPage: React.FC = () => {
       </div>
     );
   }
-
+  
   return (
     <div className="max-w-5xl mx-auto relative">
       {/* Decorative Sparkle Icons */}
@@ -78,14 +95,14 @@ const EvaluationPage: React.FC = () => {
 
       <RubricForm rubric={rubric} onSave={handleSaveRubric} />
 
-      {rubric && (
+      {  (
         <div className="mt-8 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 rounded-2xl shadow-xl border-2 border-purple-200/50 p-8">
           <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
             ✨ Ready to Evaluate
           </h3>
           <p className="text-gray-700 mb-6 text-lg">
-            The rubric is configured with <span className="font-bold text-purple-600">{rubric.criteria.length} criteria</span> and a total of{' '}
-            <span className="font-bold text-pink-600">{rubric.totalMarks} marks</span>. Click below to start AI evaluation.
+            The rubric is configured with <span className="font-bold text-purple-600">{"rubric.criteria.length"} criteria</span> and a total of{' '}
+            <span className="font-bold text-pink-600">{"rubric.totalMarks"} marks</span>. Click below to start AI evaluation.
           </p>
           <button
             onClick={handleEvaluate}
